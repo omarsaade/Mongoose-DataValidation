@@ -1,0 +1,342 @@
+Validation
+
+Joi is for express validation
+
+we shoulf use Joi express 
+validation or  Mongoose validation ?
+
+-- the answer is "both"
+
+these 2 complement each other.
+
+so we use joi in our restfull api
+first attack.so to make sure that data
+that the client is sending us is valid data.
+
+but we still need the second validation (mongoose validation)
+to make sure that the data we save to the database
+is in the right shape.cz its possible that the client send us a valid course
+in the body of the request but when we create a course object
+in our http service pherhaps we may forget to set the name property to
+what we get from req.body.name
+so by enforcing validation in mongoose we can ensure that progamming error like
+forgetting the name wont result in invalid documents to be persistet in mongodb
+database.
+ 
+
+
+
+
+const mongoose = require("mongoose");
+mongoose
+  .connect("mongodb://localhost/playground")
+  .then(() => console.log("Connected to MongoDB..."))
+  .catch((err) => console.log("Could not connect to MongoDB...", err));
+
+const courseSchema = new mongoose.Schema({
+  //awal sater huwe syntax khass bi mongoose bas
+  name: { type: String, required: true },
+  author: String,
+  tags: [String],
+  date: { type: Date, default: Date.now },
+  isPublished: Boolean,
+  price: Number,
+});
+
+const Course = mongoose.model("Course", courseSchema);
+
+async function createCourse() {
+  const course = new Course({
+    // name: "Angular Course",
+    author: "Maximillian shwarzmuller",
+    tags: ["angular", "frontend"],
+    isPublished: true,
+    price: 15,
+  });
+
+  try {
+    // await course.validate((err) => {
+    //   if (err) {
+    //     //
+    //   }
+    // });
+    const result = await course.save();
+    console.log(result);
+    // we can also manually triger the validation
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
+createCourse();
+
+// async function getCourses() {
+//   const courses = await Course.find({ author: "Mosh", isPublished: true })
+//     .limit(10)
+//     .sort({ name: 1 })
+
+//     .select({ name: 1, tags: 1 });
+//   console.log(courses);
+// }
+
+// getCourses();
+
+
+
+
+
+==================================================================================
+
+
+
+                               Built-in Validators
+
+
+const mongoose = require("mongoose");
+mongoose
+  .connect("mongodb://localhost/playground")
+  .then(() => console.log("Connected to MongoDB..."))
+  .catch((err) => console.log("Could not connect to MongoDB...", err));
+
+const courseSchema = new mongoose.Schema({
+  //awal sater huwe syntax khass bi mongoose bas
+  name: {
+    type: String,
+    required: true,
+    minlength: 5,
+    maxlength: 255,
+    //   match:/pattern/
+  },
+  category: {
+    type: String,
+    required: true,
+    enum: ["web", "mobile", "network"],
+  },
+  author: String,
+  tags: [String],
+  date: { type: Date, default: Date.now },
+  isPublished: Boolean,
+  //   price:Number,
+  price: {
+    type: Number,
+    required: function () {
+      //here we cant use arrow function cz arrow
+      //  function dont have their
+      //own this
+      // this: course object
+      return this.isPublished;
+    },
+    min: 10,
+    max: 200,
+  },
+});
+
+const Course = mongoose.model("Course", courseSchema);
+
+async function createCourse() {
+  const course = new Course({
+    name: "Angular Course",
+    category: "-",
+    author: "Maximillian shwarzmuller",
+    tags: ["angular", "frontend"],
+    isPublished: true,
+    price: 15,
+  });
+
+  try {
+    // await course.validate((err) => {
+    //   if (err) {
+    //     //
+    //   }
+    // });
+    const result = await course.save();
+    console.log(result);
+    // we can also manually triger the validation
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
+createCourse();
+
+// async function getCourses() {
+//   const courses = await Course.find({ author: "Mosh", isPublished: true })
+//     .limit(10)
+//     .sort({ name: 1 })
+
+//     .select({ name: 1, tags: 1 });
+//   console.log(courses);
+// }
+
+// getCourses();
+
+
+
+
+
+
+==================================================================================
+
+
+
+
+
+
+
+               Custom Validators
+
+
+//            Custom Validators
+
+const mongoose = require("mongoose");
+mongoose
+  .connect("mongodb://localhost/playground")
+  .then(() => console.log("Connected to MongoDB..."))
+  .catch((err) => console.log("Could not connect to MongoDB...", err));
+
+const courseSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    minlength: 5,
+    maxlength: 255,
+  },
+  category: {
+    type: String,
+    required: true,
+    enum: ["web", "mobile", "network"],
+  },
+  author: String,
+  //   tags: [String],
+  tags: {
+    type: Array,
+    validate: {
+      validator: function (v) {
+        return v && v.length > 0;
+      },
+      message: "A Course should have at least one tag.",
+    },
+  },
+  date: { type: Date, default: Date.now },
+  isPublished: Boolean,
+  //   price:Number,
+  price: {
+    type: Number,
+    required: function () {
+      return this.isPublished;
+    },
+    min: 10,
+    max: 200,
+  },
+});
+
+const Course = mongoose.model("Course", courseSchema);
+
+async function createCourse() {
+  const course = new Course({
+    name: "Angular Course",
+    category: "web",
+    author: "Maximillian shwarzmuller",
+    // tags: [],
+    tags: null,
+    isPublished: true,
+    price: 15,
+  });
+
+  try {
+    const result = await course.save();
+    console.log(result);
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
+createCourse();
+
+
+
+==============================================================================
+
+
+
+
+
+                         Async Validators
+
+
+old method..it will run only in the older version
+of mongoose
+
+
+tags: {
+    type: Array,
+    //here
+    validate: {
+      isAsync: true,
+      validator: function (v, callback) {
+        setTimeout(() => {
+          // Do some Async work
+          const result = v && v.length > 0;
+          callback(result);
+        }, 4000);
+      },
+      message: "A Course should have at least one tag.",
+    },
+  },
+
+
+
+                         New Way
+
+
+I solved it this way
+
+tags: {
+type: Array,
+validate: {
+validator: async function (v) {
+return await checkTags(v);
+},
+message: "course shoud have at least one tag"
+}
+},
+
+
+And the function
+
+async function checkTags(v) {
+  return new Promise((resolve, reject) => {
+    setTimeout(()=>{  
+        resolve(v && v.length > 0);        
+
+    }, 2000);
+  }); 
+}
+
+
+
+                   or another way
+
+ tags: {
+    type: Array,
+    //here
+    validate: {
+      validator: function (v) {
+        return new Promise((resolve,reject)=>{
+            setTimeout(() => {
+             // Do some Async work
+             const result = v && v.length > 0;
+             resolve(result);
+        }, 4000);
+        })
+      },
+      message: "A Course should have at least one tag.",
+    },
+  },                  
+
+
+===============================================================================
+
+
+
+                    Validation Erros
