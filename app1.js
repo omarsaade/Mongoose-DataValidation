@@ -10,6 +10,12 @@ mongoose
   .then(() => console.log("Connected to MongoDB..."))
   .catch((err) => console.log("Could not connect to MongoDB...", err));
 
+/*
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
+var CatSchema = new Schema(..);
+*/
+
 const courseSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -50,7 +56,7 @@ const courseSchema = new mongoose.Schema({
     max: 200,
   },
 });
-
+//to create a class like Course we need to compile the schema to model
 const Course = mongoose.model("Course", courseSchema);
 
 async function createCourse() {
