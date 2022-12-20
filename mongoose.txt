@@ -2,7 +2,7 @@ Validation
 
 Joi is for express validation
 
-we shoulf use Joi express 
+we should use Joi express 
 validation or  Mongoose validation ?
 
 -- the answer is "both"
