@@ -1,19 +1,18 @@
-const Joi = require("joi");
 const mongoose = require("mongoose");
+const Joi = require("joi");
 const express = require("express");
 const router = express.Router();
 
-const Genre = mongoose.model(
-  "Genre",
-  new mongoose.Schema({
-    name: {
-      type: String,
-      required: true,
-      minlength: 5,
-      maxlength: 50,
-    },
-  })
-);
+const genreSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    minlength: 5,
+    maxlength: 50,
+  },
+});
+
+const Genre = mongoose.model("Genre", genreSchema);
 
 router.get("/", async (req, res) => {
   const genres = await Genre.find().sort("name");
@@ -37,9 +36,7 @@ router.put("/:id", async (req, res) => {
   const genre = await Genre.findByIdAndUpdate(
     req.params.id,
     { name: req.body.name },
-    {
-      new: true,
-    }
+    { new: true }
   );
 
   if (!genre)
