@@ -1,3 +1,5 @@
+// he knows all about various route to work with customer
+// So here we are handling the express routes.
 const { Customer, validate } = require("../models/customer");
 //.Customer
 const express = require("express");

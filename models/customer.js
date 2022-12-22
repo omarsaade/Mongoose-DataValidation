@@ -1,3 +1,4 @@
+// he fia kell el code for defining and validating customer object
 const mongoose = require("mongoose");
 const Joi = require("joi");
 
@@ -36,5 +37,12 @@ function validateCustomer(customer) {
 
 // module.exports.Customer = Customer;
 //shorter way
+
+// we can also export a single function instead of exporting an object.
+// how can we do that ?
+//  so for example here we need an object in this module
+//  cz we have a multiple meth
+// an Object would be usefull if we have multiple methods or properties
+
 exports.Customer = Customer;
 exports.validate = validateCustomer;

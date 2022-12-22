@@ -1,0 +1,10 @@
+3ana tari2ten la net3amal ma3 el relation between collection or documents
+
+1- Using References (Normalization)
+
+
+
+
+
+
+2- Using Embedded Documents (Denormalization)
